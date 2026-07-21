@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jadłospis — 3 dni, 2200 kcal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4EFE4;
+    --card:#FBF8F1;
+    --ink:#2B2620;
+    --ink-soft:#5C5548;
+    --green:#33513E;
+    --green-soft:#4E7059;
+    --mustard:#C08F2A;
+    --rust:#A6472F;
+    --line: rgba(43,38,32,0.14);
+    --radius: 3px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:
+      radial-gradient(rgba(43,38,32,0.035) 1px, transparent 1px);
+    background-size: 4px 4px;
+    color:var(--ink);
+    font-family:'Work Sans', sans-serif;
+    line-height:1.5;
+    padding-bottom:80px;
+  }
+  h1,h2,h3,h4{
+    font-family:'Fraunces', serif;
+    margin:0;
+    color:var(--ink);
+  }
+  .wrap{
+    max-width:920px;
+    margin:0 auto;
+    padding:0 20px;
+  }
+
+  /* ---------- HEADER ---------- */
+  header.top{
+    padding:56px 0 28px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom:32px;
+  }
+  .eyebrow{
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--green-soft);
+    font-weight:600;
+    margin-bottom:10px;
+  }
+  header.top h1{
+    font-size:clamp(34px,5vw,52px);
+    font-weight:700;
+    letter-spacing:-0.01em;
+    max-width:14ch;
+  }
+  header.top .sub{
+    margin-top:12px;
+    color:var(--ink-soft);
+    font-size:16px;
+    max-width:56ch;
+  }
+  .macro-target{
+    margin-top:26px;
+    display:flex;
+    gap:0;
+    flex-wrap:wrap;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    width:fit-content;
+    background:var(--card);
+  }
+  .macro-target div{
+    padding:12px 20px;
+    border-right:1px solid var(--line);
+  }
+  .macro-target div:last-child{border-right:none;}
+  .macro-target .num{
+    font-family:'Fraunces',serif;
+    font-size:22px;
+    font-weight:600;
+    line-height:1;
+  }
+  .macro-target .lbl{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--ink-soft);
+    margin-top:4px;
+  }
+
+  .removed-note{
+    margin-top:22px;
+    font-size:13.5px;
+    color:var(--ink-soft);
+  }
+  .removed-note b{color:var(--rust); font-weight:600;}
+  .removed-note span.tag{
+    display:inline-block;
+    margin:2px 6px 2px 0;
+    padding:2px 8px;
+    border:1px solid rgba(166,71,47,0.35);
+    border-radius:20px;
+    color:var(--rust);
+    font-size:12.5px;
+  }
+
+  /* ---------- DAY TABS ---------- */
+  nav.days{
+    position:sticky;
+    top:0;
+    z-index:20;
+    background:var(--paper);
+    padding:14px 0;
+    margin-bottom:8px;
+    border-bottom:1px solid var(--line);
+  }
+  nav.days .wrap{display:flex; gap:8px; flex-wrap:wrap;}
+  nav.days button{
+    font-family:'Work Sans',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    padding:9px 18px;
+    background:transparent;
+    border:1px solid var(--line);
+    border-radius:20px;
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  nav.days button:hover{border-color:var(--green-soft); color:var(--green);}
+  nav.days button.active{
+    background:var(--green);
+    border-color:var(--green);
+    color:#fff;
+  }
+  nav.days button.shop-btn{
+    margin-left:auto;
+    color:var(--mustard);
+    border-color:rgba(192,143,42,0.4);
+  }
+  nav.days button.shop-btn.active{
+    background:var(--mustard);
+    border-color:var(--mustard);
+    color:#fff;
+  }
+
+  /* ---------- DAY SECTIONS ---------- */
+  section.day{display:none; padding-top:28px;}
+  section.day.active{display:block;}
+  .day-heading{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    margin-bottom:22px;
+  }
+  .day-heading h2{
+    font-size:26px;
+    font-weight:600;
+  }
+  .day-heading .day-total{
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+
+  /* ---------- RECIPE CARD ---------- */
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    margin-bottom:22px;
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0; left:0; bottom:0;
+    width:5px;
+    background:var(--meal-color, var(--green));
+  }
+  .card[data-meal="śniadanie"]{--meal-color:#4E7059;}
+  .card[data-meal="obiad"]{--meal-color:#A6472F;}
+  .card[data-meal="trening"]{--meal-color:#C08F2A;}
+  .card[data-meal="kolacja"]{--meal-color:#3B5787;}
+
+  .card-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    padding:20px 22px 14px 28px;
+  }
+  .card-head .meal-tag{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.09em;
+    font-weight:600;
+    color:var(--meal-color, var(--green-soft));
+    margin-bottom:6px;
+  }
+  .card-head h3{
+    font-size:19px;
+    font-weight:600;
+    line-height:1.25;
+  }
+  .kcal-badge{
+    flex:none;
+    text-align:right;
+  }
+  .kcal-badge .n{
+    font-family:'Fraunces',serif;
+    font-size:22px;
+    font-weight:600;
+  }
+  .kcal-badge .u{
+    font-size:11px;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+  }
+
+  .card-body{
+    padding:0 22px 22px 28px;
+    display:grid;
+    grid-template-columns: 1.1fr 1.3fr;
+    gap:22px;
+  }
+  @media (max-width:640px){
+    .card-body{grid-template-columns:1fr;}
+  }
+  .card-body h4{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--ink-soft);
+    font-weight:600;
+    margin-bottom:8px;
+  }
+  .ingredients ul{
+    margin:0; padding:0;
+    list-style:none;
+    font-size:14.5px;
+  }
+  .ingredients li{
+    padding:5px 0;
+    border-bottom:1px dashed var(--line);
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .ingredients li:last-child{border-bottom:none;}
+  .ingredients li .amt{
+    color:var(--ink-soft);
+    flex:none;
+    font-variant-numeric:tabular-nums;
+  }
+  .steps ol{
+    margin:0;
+    padding-left:18px;
+    font-size:14.5px;
+    color:var(--ink);
+  }
+  .steps li{padding:3px 0;}
+
+  /* macro bar */
+  .macrobar{
+    margin-top:16px;
+    grid-column:1/-1;
+  }
+  .macrobar .bar{
+    display:flex;
+    height:8px;
+    border-radius:6px;
+    overflow:hidden;
+    background:var(--line);
+  }
+  .macrobar .seg-b{background:var(--green-soft);}
+  .macrobar .seg-w{background:var(--mustard);}
+  .macrobar .seg-t{background:var(--rust);}
+  .macrobar .legend{
+    display:flex;
+    gap:16px;
+    margin-top:8px;
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+  .macrobar .legend span{display:flex; align-items:center; gap:5px;}
+  .macrobar .legend i{
+    width:8px;height:8px;border-radius:50%;display:inline-block;
+  }
+  .legend .b i{background:var(--green-soft);}
+  .legend .w i{background:var(--mustard);}
+  .legend .t i{background:var(--rust);}
+
+  /* ---------- SHOPPING LIST ---------- */
+  section.shop{display:none; padding-top:28px;}
+  section.shop.active{display:block;}
+  .shop h2{font-size:26px; font-weight:600; margin-bottom:6px;}
+  .shop .sub{color:var(--ink-soft); font-size:14.5px; margin-bottom:26px;}
+  .shop-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(230px,1fr));
+    gap:18px;
+  }
+  .shop-cat{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px 20px;
+  }
+  .shop-cat h4{
+    font-family:'Fraunces',serif;
+    font-size:15px;
+    font-weight:600;
+    color:var(--green);
+    margin-bottom:10px;
+    padding-bottom:8px;
+    border-bottom:1px solid var(--line);
+  }
+  .shop-cat ul{margin:0; padding:0; list-style:none;}
+  .shop-cat li{
+    font-size:14px;
+    padding:5px 0;
+    display:flex;
+    align-items:center;
+    gap:9px;
+    cursor:pointer;
+    user-select:none;
+    color:var(--ink);
+  }
+  .shop-cat li .box{
+    width:14px; height:14px; flex:none;
+    border:1.5px solid var(--ink-soft);
+    border-radius:3px;
+    position:relative;
+    transition: all .12s ease;
+  }
+  .shop-cat li.checked{
+    color:var(--ink-soft);
+    text-decoration:line-through;
+  }
+  .shop-cat li.checked .box{
+    background:var(--green-soft);
+    border-color:var(--green-soft);
+  }
+  .shop-cat li.checked .box::after{
+    content:"";
+    position:absolute;
+    left:3px; top:0px;
+    width:4px; height:8px;
+    border:solid #fff;
+    border-width:0 2px 2px 0;
+    transform:rotate(45deg);
+  }
+
+  footer{
+    max-width:920px;
+    margin:60px auto 0;
+    padding:22px 20px 0;
+    border-top:1px solid var(--line);
+    font-size:12.5px;
+    color:var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <h1>3 dni jedzenia, ułożone tak, żeby się nie znudzić</h1>
+    <div class="macro-target">
+      <div><div class="num">2200</div><div class="lbl">kcal / dzień</div></div>
+      <div><div class="num">160 g</div><div class="lbl">białko</div></div>
+      <div><div class="num">231 g</div><div class="lbl">węglowodany</div></div>
+      <div><div class="num">71 g</div><div class="lbl">tłuszcz</div></div>
+    </div>
+  </div>
+</header>
+
+<nav class="days">
+  <div class="wrap">
+    <button class="day-tab active" data-target="day1">Dzień 1</button>
+    <button class="day-tab" data-target="day2">Dzień 2</button>
+    <button class="day-tab" data-target="day3">Dzień 3</button>
+    <button class="day-tab shop-btn" data-target="shop">🛒 Lista zakupów</button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- ================= DAY 1 ================= -->
+  <section class="day active" id="day1">
+    <div class="day-heading">
+      <h2>Dzień 1</h2>
+      <span class="day-total">≈ 2200 kcal · B 160 g · W 231 g · T 71 g</span>
+    </div>
+
+    <article class="card" data-meal="śniadanie">
+      <div class="card-head">
+        <div>
+          <div class="meal-tag">Śniadanie</div>
+          <h3>Owsianka proteinowa z bananem</h3>
+        </div>
+        <div class="kcal-badge"><div class="n">560</div><div class="u">kcal</div></div>
+      </div>
+      <div class="card-body">
+        <div class="ingredients">
+          <h4>Składniki</h4>
+          <ul>
+            <li><span>Płatki owsiane</span><span class="amt">80 g</span></li>
+            <li><span>Mleko 1,5%</span><span class="amt">250 ml</span></li>
+            <li><span>Odżywka białkowa waniliowa</span><span class="amt">30 g</span></li>
+            <li><span>Banan</span><span class="amt">1 szt.</span></li>
+            <li><span>Masło orzechowe 100%</span><span class="amt">15 g</span></li>
+          </ul>
+        </div>
+        <div class="steps">
+          <h4>Wykonanie</h4>
+          <ol>
+            <li>Zagotuj mleko.</li>
+            <li>Wsyp płatki i gotuj ok. 5 minut.</li>
+            <li>Dodaj odżywkę białkową.</li>
+            <li>Dodaj pokrojonego banana.</li>
+            <li>Na wierzch połóż masło orzechowe.</li>
+          </ol>
+        </div>
+        <div class="macrobar">
+          <div class="bar">
+            <div class="seg-b" style="width:28%"></div>
+            <div class="seg-w" style="width:44%"></div>
+            <div class="seg-t" style="width:28%"></div>
+          </div>
+          <div class="legend">
+            <span class="b"><i></i>B 39 g</span>
+            <span class="w"><i></i>W 61 g</span>
+            <span class="t"><i></i>T 18 g</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-meal="obiad">
+      <div class="card-head">
+        <div>
+          <div class="meal-tag">Obiad</div>
+          <h3>Kurczak z ryżem i warzywami</h3>
+        </div>
+        <div class="kcal-badge"><div class="n">760</div><div class="u">kcal</div></div>
+      </div>
+      <div class="card-body">
+        <div class="ingredients">
+          <h4>Składniki</h4>
+          <ul>
+            <li><span>Pierś z kurczaka</span><span class="amt">180 g</span></li>
+            <li><span>Ryż basmati</span><span class="amt">90 g</span></li>
+            <li><span>Warzywa</span><span class="amt">200 g</span></li>
+            <li><span>Oliwa</span><span class="amt">15 g</span></li>
+            <li><span>Przyprawy</span><span class="amt">do smaku</span></li>
+          </ul>
+        </div>
+        <div class="steps">
+          <h4>Wykonanie</h4>
+          <ol>
+            <li>Ugotuj ryż.</li>
+            <li>Kurczaka przypraw i usmaż.</li>
+            <li>Warzywa ugotuj.</li>
+            <li>Podawaj razem.</li>
+          </ol>
+        </div>
+        <div class="macrobar">
+          <div class="bar">
+            <div class="seg-b" style="width:31%"></div>
+            <div class="seg-w" style="width:38%"></div>
+            <div class="seg-t" style="width:31%"></div>
+          </div>
+          <div class="legend">
+            <span class="b"><i></i>B 58 g</span>
+            <span class="w"><i></i>W 72 g</span>
+            <span class="t"><i></i>T 27 g</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-meal="trening">
+      <div class="card-head">
+        <div>
+          <div class="meal-tag">Przed treningiem</div>
+          <h3>Skyr, wafle ryżowe, dżem, banan</h3>
+        </div>
+        <div class="kcal-badge"><div class="n">400</div><div class="u">kcal</div></div>
+      </div>
+      <div class="card-body">
+        <div class="ingredients">
+          <h4>Składniki</h4>
+          <ul>
+            <li><span>Skyr naturalny</span><span class="amt">250 g</span></li>
+            <li><span>Wafle ryżowe</span><span class="amt">6 szt.</span></li>
+            <li><span>Dżem 100%</span><span class="amt">20 g</span></li>
+            <li><span>Banan</span><span class="amt">1 szt.</span></li>
+          </ul>
+        </div>
+        <div class="steps">
+          <h4>Wykonanie</h4>
+          <ol><li>Wymieszaj skyr, podawaj z waflami, dżemem i bananem.</li></ol>
+        </div>
+        <div class="macrobar">
+          <div class="bar">
+            <div class="seg-b" style="width:33%"></div>
+            <div class="seg-w" style="width:57%"></div>
+            <div class="seg-t" style="width:10%"></div>
+          </div>
+          <div class="legend">
+            <span class="b"><i></i>B 33 g</span>
+            <span class="w"><i></i>W 57 g</span>
+            <span class="t"><i></i>T 4 g</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-meal="kolacja">
+      <div class="card-head">
+        <div>
+          <div class="meal-tag">Kolacja</div>
+          <h3>Tosty z jajkiem i twarogiem</h3>
+        </div>
+        <div class="kcal-badge"><div class="n">480</div><div class="u">kcal</div></div>
+      </div>
+      <div class="card-body">
+        <div class="ingredients">
+          <h4>Składniki</h4>
+          <ul>
+            <li><span>Jajka</span><span class="amt">2 szt.</span></li>
+            <li><span>Twaróg półtłusty</span><span class="amt">150 g</span></li>
+            <li><span>Chleb pełnoziarnisty</span><span class="amt">80 g</span></li>
+            <li><span>Masło</span><span class="amt">10 g</span></li>
+            <li><span>Pomidor</span><span class="amt">do smaku</span></li>
+            <li><span>Szczypiorek</span><span class="amt">do smaku</span></li>
+          </ul>
+        </div>
+        <div class="steps">
+          <h4>Wykonanie</h4>
+          <ol><li>Przygotuj tosty, podawaj z jajkiem, twarogiem, pomidorem i szczypiorkiem.</li></ol>
+        </div>
+        <div class="macrobar">
+          <div class="bar">
+            <div class="seg-b" style="width:36%"></div>
+            <div class="seg-w" style="width:42%"></div>
+            <div class="seg-t" style="width:22%"></div>
+          </div>
+          <div class="legend">
+            <span class="b"><i></i>B 35 g</span>
+            <span class="w"><i></i>W 41 g</span>
+            <span class="t"><i></i>T 22 g</span>
+          </div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ================= DAY 2 ================= -->
+  <section class="day" id="day2">
+    <div class="day-heading">
+      <h2>Dzień 2</h2>
+      <span class="day-total">≈ 2200 kcal · B 160 g · W 231 g · T 71 g</span>
+    </div>
+
+    <article class="card" data-meal="śniadanie">
+      <div class="card-head">
+        <div>
+          <div class="meal-tag">Śniadanie</div>
+          <h3>Dwie bułki z jajkiem i szynką</h3>
+        </div>
+        <div class="kcal-badge"><div class="n">540</div><div class="u">kcal</div></div>
+      </div>
+      <div class="card-body">
+        <div class="ingredients">
+          <h4>Składniki</h4>
+          <ul>
+            <li><span>Bułki grahamki</span><span class="amt">2 szt.</span></li>
+            <li><span>Jajka</span><span class="amt">2 szt.</span></li>
+            <li><span>Szynka z indyka</span><span class="amt">80 g</span></li>
+            <li><span>Ogórek</span><span class="amt">do smaku</span></li>
+            <li><span>Sałata</span><span class="amt">do smaku</span></li>
+          </ul>
+        </div>
+        <div class="steps">
+          <h4>Wykonanie</h4>
+          <ol>
+            <li>Jajka ugotuj.</li>
+            <li>Przekrój bułki.</li>
+            <li>Dodaj sałatę, szynkę, jajka i ogórek.</li>
+          </ol>
+        </div>
+        <div class="macrobar">
+          <div class="bar">
+            <div class="seg-b" style="width:29%"></div>
+            <div class="seg-w" style="width:42%"></div>
+            <div class="seg-t" style="width:29%"></div>
+          </div>
+          <div class="legend">
+            <span class="b"><i></i>B 38 g</span>
+            <span class="w"><i></i>W 55 g</span>
+            <span class="t"><i></i>T 20 g</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-meal="obiad">
+      <div class="card-head">
+        <div>
+          <div class="meal-tag">Obiad</div>
+          <h3>Makaron z mięsem mielonym</h3>
+        </div>
+        <div class="kcal-badge"><div class="n">790</div><div class="u">kcal</div></div>
+      </div>
+      <div class="card-body">
+        <div class="ingredients">
+          <h4>Składniki</h4>
+          <ul>
+            <li><span>Mięso mielone z indyka</span><span class="amt">180 g</span></li>
+            <li><span>Makaron pełnoziarnisty</span><span class="amt">100 g</span></li>
+            <li><span>Passata</span><span class="amt">200 g</span></li>
+            <li><span>Cebula</span><span class="amt">do smaku</span></li>
+            <li><span>Pieczarki</span><span class="amt">do smaku</span></li>
+            <li><span>Oliwa</span><span class="amt">10 g</span></li>
+            <li><span>Parmezan</span><span class="amt">20 g</span></li>
+          </ul>
+        </div>
+        <div class="steps">
+          <h4>Wykonanie</h4>
+          <ol>
+            <li>Ugotuj makaron.</li>
+            <li>Podsmaż mięso z cebulą.</li>
+            <li>Dodaj pieczarki, następnie passatę.</li>
+            <li>Posyp parmezanem.</li>
+          </ol>
+        </div>
+        <div class="macrobar">
+          <div class="bar">
+            <div class="seg-b" style="width:31%"></div>
+            <div class="seg-w" style="width:39%"></div>
+            <div class="seg-t" style="width:30%"></div>
+          </div>
+          <div class="legend">
+            <span class="b"><i></i>B 59 g</span>
+            <span class="w"><i></i>W 74 g</span>
+            <span class="t"><i></i>T 29 g</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-meal="trening">
+      <div class="card-head">
+        <div>
+          <div class="meal-tag">Przed treningiem</div>
+          <h3>Skyr waniliowy, banan, wafle ryżowe</h3>
+        </div>
+        <div class="kcal-badge"><div class="n">370</div><div class="u">kcal</div></div>
+      </div>
+      <div class="card-body">
+        <div class="ingredients">
+          <h4>Składniki</h4>
+          <ul>
+            <li><span>Skyr waniliowy</span><span class="amt">250 g</span></li>
+            <li><span>Banan</span><span class="amt">1 szt.</span></li>
+            <li><span>Wafle ryżowe</span><span class="amt">4 szt.</span></li>
+          </ul>
+        </div>
+        <div class="steps">
+          <h4>Wykonanie</h4>
+          <ol><li>Podawaj skyr z bananem i waflami.</li></ol>
+        </div>
+        <div class="macrobar">
+          <div class="bar">
+            <div class="seg-b" style="width:37%"></div>
+            <div class="seg-w" style="width:60%"></div>
+            <div class="seg-t" style="width:3%"></div>
+          </div>
+          <div class="legend">
+            <span class="b"><i></i>B 33 g</span>
+            <span class="w"><i></i>W 54 g</span>
+            <span class="t"><i></i>T 2 g</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-meal="kolacja">
+      <div class="card-head">
+        <div>
+          <div class="meal-tag">Kolacja</div>
+          <h3>Sałatka z kurczakiem</h3>
+        </div>
+        <div class="kcal-badge"><div class="n">500</div><div class="u">kcal</div></div>
+      </div>
+      <div class="card-body">
+        <div class="ingredients">
+          <h4>Składniki</h4>
+          <ul>
+            <li><span>Kurczak</span><span class="amt">120 g</span></li>
+            <li><span>Feta light</span><span class="amt">50 g</span></li>
+            <li><span>Chleb żytni</span><span class="amt">80 g</span></li>
+            <li><span>Mix sałat</span><span class="amt">do smaku</span></li>
+            <li><span>Pomidor</span><span class="amt">do smaku</span></li>
+            <li><span>Ogórek</span><span class="amt">do smaku</span></li>
+            <li><span>Papryka</span><span class="amt">do smaku</span></li>
+            <li><span>Oliwa</span><span class="amt">10 g</span></li>
+          </ul>
+        </div>
+        <div class="steps">
+          <h4>Wykonanie</h4>
+          <ol><li>Połącz wszystkie składniki w misce, skrop oliwą.</li></ol>
+        </div>
+        <div class="macrobar">
+          <div class="bar">
+            <div class="seg-b" style="width:32%"></div>
+            <div class="seg-w" style="width:48%"></div>
+            <div class="seg-t" style="width:20%"></div>
+          </div>
+          <div class="legend">
+            <span class="b"><i></i>B 32 g</span>
+            <span class="w"><i></i>W 48 g</span>
+            <span class="t"><i></i>T 20 g</span>
+          </div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ================= DAY 3 ================= -->
+  <section class="day" id="day3">
+    <div class="day-heading">
+      <h2>Dzień 3</h2>
+      <span class="day-total">≈ 2200 kcal · B 160 g · W 231 g · T 71 g</span>
+    </div>
+
+    <article class="card" data-meal="śniadanie">
+      <div class="card-head">
+        <div>
+          <div class="meal-tag">Śniadanie</div>
+          <h3>Placuszki owsiane</h3>
+        </div>
+        <div class="kcal-badge"><div class="n">510</div><div class="u">kcal</div></div>
+      </div>
+      <div class="card-body">
+        <div class="ingredients">
+          <h4>Składniki</h4>
+          <ul>
+            <li><span>Płatki owsiane</span><span class="amt">70 g</span></li>
+            <li><span>Jajka</span><span class="amt">2 szt.</span></li>
+            <li><span>Twaróg półtłusty</span><span class="amt">150 g</span></li>
+            <li><span>Borówki</span><span class="amt">100 g</span></li>
+          </ul>
+        </div>
+        <div class="steps">
+          <h4>Wykonanie</h4>
+          <ol>
+            <li>Zblenduj płatki z jajkami.</li>
+            <li>Usmaż placuszki.</li>
+            <li>Podawaj z twarogiem i borówkami.</li>
+          </ol>
+        </div>
+        <div class="macrobar">
+          <div class="bar">
+            <div class="seg-b" style="width:30%"></div>
+            <div class="seg-w" style="width:41%"></div>
+            <div class="seg-t" style="width:29%"></div>
+          </div>
+          <div class="legend">
+            <span class="b"><i></i>B 38 g</span>
+            <span class="w"><i></i>W 52 g</span>
+            <span class="t"><i></i>T 17 g</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-meal="obiad">
+      <div class="card-head">
+        <div>
+          <div class="meal-tag">Obiad</div>
+          <h3>Burrito Bowl</h3>
+        </div>
+        <div class="kcal-badge"><div class="n">760</div><div class="u">kcal</div></div>
+      </div>
+      <div class="card-body">
+        <div class="ingredients">
+          <h4>Składniki</h4>
+          <ul>
+            <li><span>Chude mięso mielone</span><span class="amt">180 g</span></li>
+            <li><span>Ryż</span><span class="amt">90 g</span></li>
+            <li><span>Fasola</span><span class="amt">100 g</span></li>
+            <li><span>Kukurydza</span><span class="amt">100 g</span></li>
+            <li><span>Passata</span><span class="amt">150 g</span></li>
+            <li><span>Oliwa</span><span class="amt">10 g</span></li>
+            <li><span>Cebula</span><span class="amt">do smaku</span></li>
+            <li><span>Papryka</span><span class="amt">do smaku</span></li>
+          </ul>
+        </div>
+        <div class="steps">
+          <h4>Wykonanie</h4>
+          <ol>
+            <li>Ugotuj ryż.</li>
+            <li>Podsmaż mięso.</li>
+            <li>Dodaj warzywa i passatę.</li>
+            <li>Wymieszaj z ryżem.</li>
+          </ol>
+        </div>
+        <div class="macrobar">
+          <div class="bar">
+            <div class="seg-b" style="width:32%"></div>
+            <div class="seg-w" style="width:38%"></div>
+            <div class="seg-t" style="width:30%"></div>
+          </div>
+          <div class="legend">
+            <span class="b"><i></i>B 60 g</span>
+            <span class="w"><i></i>W 71 g</span>
+            <span class="t"><i></i>T 26 g</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-meal="trening">
+      <div class="card-head">
+        <div>
+          <div class="meal-tag">Przed treningiem</div>
+          <h3>Skyr, musli, truskawki</h3>
+        </div>
+        <div class="kcal-badge"><div class="n">400</div><div class="u">kcal</div></div>
+      </div>
+      <div class="card-body">
+        <div class="ingredients">
+          <h4>Składniki</h4>
+          <ul>
+            <li><span>Skyr naturalny</span><span class="amt">250 g</span></li>
+            <li><span>Musli</span><span class="amt">60 g</span></li>
+            <li><span>Truskawki</span><span class="amt">150 g</span></li>
+          </ul>
+        </div>
+        <div class="steps">
+          <h4>Wykonanie</h4>
+          <ol><li>Wymieszaj skyr z musli i truskawkami.</li></ol>
+        </div>
+        <div class="macrobar">
+          <div class="bar">
+            <div class="seg-b" style="width:35%"></div>
+            <div class="seg-w" style="width:57%"></div>
+            <div class="seg-t" style="width:8%"></div>
+          </div>
+          <div class="legend">
+            <span class="b"><i></i>B 35 g</span>
+            <span class="w"><i></i>W 57 g</span>
+            <span class="t"><i></i>T 4 g</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-meal="kolacja">
+      <div class="card-head">
+        <div>
+          <div class="meal-tag">Kolacja</div>
+          <h3>Tortilla z kurczakiem</h3>
+        </div>
+        <div class="kcal-badge"><div class="n">530</div><div class="u">kcal</div></div>
+      </div>
+      <div class="card-body">
+        <div class="ingredients">
+          <h4>Składniki</h4>
+          <ul>
+            <li><span>Tortilla pełnoziarnista</span><span class="amt">1 szt.</span></li>
+            <li><span>Kurczak</span><span class="amt">150 g</span></li>
+            <li><span>Mozzarella light</span><span class="amt">30 g</span></li>
+            <li><span>Awokado</span><span class="amt">50 g</span></li>
+            <li><span>Sałata</span><span class="amt">do smaku</span></li>
+            <li><span>Pomidor</span><span class="amt">do smaku</span></li>
+            <li><span>Ogórek</span><span class="amt">do smaku</span></li>
+            <li><span>Sos czosnkowy light</span><span class="amt">20 g</span></li>
+          </ul>
+        </div>
+        <div class="steps">
+          <h4>Wykonanie</h4>
+          <ol>
+            <li>Usmaż kurczaka.</li>
+            <li>Podgrzej tortillę.</li>
+            <li>Dodaj wszystkie składniki i zwiń.</li>
+          </ol>
+        </div>
+        <div class="macrobar">
+          <div class="bar">
+            <div class="seg-b" style="width:25%"></div>
+            <div class="seg-w" style="width:37%"></div>
+            <div class="seg-t" style="width:41%"></div>
+          </div>
+          <div class="legend">
+            <span class="b"><i></i>B 33 g</span>
+            <span class="w"><i></i>W 49 g</span>
+            <span class="t"><i></i>T 24 g</span>
+          </div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ================= SHOPPING LIST ================= -->
+  <section class="shop" id="shop">
+    <h2>Lista zakupów</h2>
+    <p class="sub">Produkty warto mieć zawsze pod ręką — odhacz to, co już masz w koszyku. Zaznaczenia zapisują się tylko w tej sesji przeglądarki.</p>
+    <div class="shop-grid">
+
+      <div class="shop-cat">
+        <h4>Mięso</h4>
+        <ul>
+          <li><span class="box"></span>Pierś z kurczaka</li>
+          <li><span class="box"></span>Mięso mielone z indyka</li>
+          <li><span class="box"></span>Chude mięso mielone wołowe</li>
+          <li><span class="box"></span>Szynka z indyka</li>
+        </ul>
+      </div>
+
+      <div class="shop-cat">
+        <h4>Nabiał</h4>
+        <ul>
+          <li><span class="box"></span>Skyr naturalny i waniliowy</li>
+          <li><span class="box"></span>Twaróg półtłusty</li>
+          <li><span class="box"></span>Feta light</li>
+          <li><span class="box"></span>Mozzarella light</li>
+          <li><span class="box"></span>Mleko 1,5%</li>
+          <li><span class="box"></span>Jajka</li>
+        </ul>
+      </div>
+
+      <div class="shop-cat">
+        <h4>Produkty zbożowe</h4>
+        <ul>
+          <li><span class="box"></span>Ryż basmati</li>
+          <li><span class="box"></span>Makaron pełnoziarnisty</li>
+          <li><span class="box"></span>Chleb pełnoziarnisty</li>
+          <li><span class="box"></span>Chleb żytni</li>
+          <li><span class="box"></span>Bułki grahamki</li>
+          <li><span class="box"></span>Tortille pełnoziarniste</li>
+          <li><span class="box"></span>Płatki owsiane</li>
+          <li><span class="box"></span>Musli</li>
+          <li><span class="box"></span>Wafle ryżowe</li>
+        </ul>
+      </div>
+
+      <div class="shop-cat">
+        <h4>Warzywa</h4>
+        <ul>
+          <li><span class="box"></span>Brokuły</li>
+          <li><span class="box"></span>Marchew</li>
+          <li><span class="box"></span>Fasolka szparagowa</li>
+          <li><span class="box"></span>Pomidory</li>
+          <li><span class="box"></span>Ogórki</li>
+          <li><span class="box"></span>Papryka</li>
+          <li><span class="box"></span>Sałata</li>
+          <li><span class="box"></span>Pieczarki</li>
+          <li><span class="box"></span>Cebula</li>
+          <li><span class="box"></span>Szczypiorek</li>
+        </ul>
+      </div>
+
+      <div class="shop-cat">
+        <h4>Owoce</h4>
+        <ul>
+          <li><span class="box"></span>Banany</li>
+          <li><span class="box"></span>Borówki</li>
+          <li><span class="box"></span>Truskawki</li>
+          <li><span class="box"></span>Awokado</li>
+        </ul>
+      </div>
+
+      <div class="shop-cat">
+        <h4>Dodatki</h4>
+        <ul>
+          <li><span class="box"></span>Oliwa z oliwek</li>
+          <li><span class="box"></span>Masło</li>
+          <li><span class="box"></span>Masło orzechowe 100%</li>
+          <li><span class="box"></span>Passata pomidorowa</li>
+          <li><span class="box"></span>Dżem 100%</li>
+          <li><span class="box"></span>Parmezan</li>
+          <li><span class="box"></span>Przyprawy</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  Jadłospis 3-dniowy · ok. 2200 kcal / 160 g B / 231 g W / 71 g T · zapisane statycznie jako strona do GitHub Pages.
+</footer>
+
+<script>
+  // Tab switching
+  const tabs = document.querySelectorAll('.day-tab');
+  const sections = {
+    day1: document.getElementById('day1'),
+    day2: document.getElementById('day2'),
+    day3: document.getElementById('day3'),
+    shop: document.getElementById('shop'),
+  };
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      Object.values(sections).forEach(s => s.classList.remove('active'));
+      sections[tab.dataset.target].classList.add('active');
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Shopping list checkboxes (session only)
+  document.querySelectorAll('.shop-cat li').forEach(li => {
+    li.addEventListener('click', () => li.classList.toggle('checked'));
+  });
+</script>
+
+</body>
+</html>
